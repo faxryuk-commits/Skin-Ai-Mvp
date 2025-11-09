@@ -7,6 +7,8 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import CallbackQuery
 from aiogram.client.default import DefaultBotProperties
+from aiogram.client.session.aiohttp import AiohttpSession
+from aiohttp import ClientTimeout
 
 from config import get_settings
 from keyboards import main_actions
@@ -23,7 +25,12 @@ from messages import (
 
 
 settings = get_settings()
-bot = Bot(token=settings.token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+session = AiohttpSession(timeout=ClientTimeout(total=60, sock_connect=30, sock_read=30))
+bot = Bot(
+    token=settings.token,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+    session=session,
+)
 dp = Dispatcher()
 router = Router()
 dp.include_router(router)
