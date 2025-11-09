@@ -18,4 +18,5 @@ class AnalysisResult(BaseModel):
     ingredients: List[str] = Field(default_factory=list)
     product_classes: List[str] = Field(default_factory=list)
     warning: Optional[str] = None
+    image_url: Optional[str] = None
 

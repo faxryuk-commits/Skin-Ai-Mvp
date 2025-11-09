@@ -13,6 +13,7 @@ from PIL import Image
 
 from models.face_utils import detect_face_bbox
 from prompts import JSON_SCHEMA, SYSTEM_PROMPT
+from storage import upload_image
 
 try:
     import cv2  # type: ignore
@@ -152,12 +153,15 @@ async def analyze_image(image_bytes: bytes, user_id: str) -> Dict[str, Any]:
     image, optimized_bytes = _prepare_image(image_bytes)
     _ensure_quality(image)
 
+    stored_image_url = upload_image(image_bytes, user_id)
+
     metrics = _compute_metrics(image)
     ai_result = await _call_gpt(metrics, optimized_bytes)
 
     ai_result["id"] = str(uuid.uuid4())
     ai_result["metrics"] = metrics
     ai_result["user_id"] = user_id
+    ai_result["image_url"] = stored_image_url
 
     merged = _merge_with_rules(ai_result)
     return merged
