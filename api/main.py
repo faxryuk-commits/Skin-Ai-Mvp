@@ -1,8 +1,8 @@
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
-from .schemas import AnalysisResult
-from .skin_analyzer import analyze_image
+from schemas import AnalysisResult
+from skin_analyzer import analyze_image
 
 
 app = FastAPI(title="Skin AI API", version="0.1.0")

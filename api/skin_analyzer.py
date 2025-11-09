@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from openai import AsyncOpenAI
 from PIL import Image
 
-from .prompts import JSON_SCHEMA, SYSTEM_PROMPT
+from prompts import JSON_SCHEMA, SYSTEM_PROMPT
 
 try:
     import cv2  # type: ignore
