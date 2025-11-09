@@ -89,6 +89,7 @@ async def _call_gpt(metrics: Dict[str, float], image_bytes: bytes) -> Dict[str, 
     response = await client.responses.create(
         model=selected_model,
         temperature=0.2,
+        max_output_tokens=600,
         response_format={"type": "json_schema", "json_schema": JSON_SCHEMA},
         input=[
             {"role": "system", "content": [{"type": "input_text", "text": SYSTEM_PROMPT}]},
@@ -124,11 +125,11 @@ async def _call_gpt(metrics: Dict[str, float], image_bytes: bytes) -> Dict[str, 
 def _prepare_image(image_bytes: bytes) -> Tuple[Image.Image, bytes]:
     image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     max_side = max(image.size)
-    if max_side > 1024:
-        image.thumbnail((1024, 1024), Image.LANCZOS)
+    if max_side > 768:
+        image.thumbnail((768, 768), Image.LANCZOS)
 
     buffer = io.BytesIO()
-    image.save(buffer, format="JPEG", quality=85, optimize=True)
+    image.save(buffer, format="JPEG", quality=80, optimize=True)
     optimized_bytes = buffer.getvalue()
     buffer.close()
     return image, optimized_bytes
