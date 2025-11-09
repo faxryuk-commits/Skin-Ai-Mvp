@@ -18,7 +18,17 @@ class StorageConfig:
     use_path_style: bool = True
 
 
+def is_storage_configured() -> bool:
+    return all(
+        os.getenv(key)
+        for key in ("STORAGE_BUCKET", "STORAGE_ACCESS_KEY", "STORAGE_SECRET_KEY")
+    )
+
+
 def get_storage_config() -> StorageConfig:
+    if not is_storage_configured():
+        raise RuntimeError("Storage is not configured")
+
     return StorageConfig(
         bucket=os.environ["STORAGE_BUCKET"],
         endpoint_url=os.getenv("STORAGE_ENDPOINT_URL"),
@@ -49,7 +59,10 @@ def generate_object_key(user_id: str, suffix: str = "original.jpg") -> str:
     return f"users/{hashed}/{suffix}"
 
 
-def upload_image(image_bytes: bytes, user_id: str, content_type: str = "image/jpeg") -> str:
+def upload_image(image_bytes: bytes, user_id: str, content_type: str = "image/jpeg") -> Optional[str]:
+    if not is_storage_configured():
+        return None
+
     cfg = get_storage_config()
     client = create_s3_client(cfg)
     object_key = generate_object_key(user_id)

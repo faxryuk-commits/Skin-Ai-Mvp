@@ -161,7 +161,8 @@ async def analyze_image(image_bytes: bytes, user_id: str) -> Dict[str, Any]:
     ai_result["id"] = str(uuid.uuid4())
     ai_result["metrics"] = metrics
     ai_result["user_id"] = user_id
-    ai_result["image_url"] = stored_image_url
+    if stored_image_url:
+        ai_result["image_url"] = stored_image_url
 
     merged = _merge_with_rules(ai_result)
     return merged
