@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from openai import AsyncOpenAI
 from PIL import Image
 
+from models.face_utils import detect_face_bbox
 from prompts import JSON_SCHEMA, SYSTEM_PROMPT
 
 try:
@@ -124,15 +125,27 @@ async def _call_gpt(metrics: Dict[str, float], image_bytes: bytes) -> Dict[str, 
 
 def _prepare_image(image_bytes: bytes) -> Tuple[Image.Image, bytes]:
     image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    max_side = max(image.size)
+    image_array = np.array(image)
+
+    bbox = detect_face_bbox(image_array)
+    if bbox is None:
+        raise ValueError("bad_quality")
+
+    x1, y1, x2, y2 = bbox
+    cropped_array = image_array[y1:y2, x1:x2]
+    if cropped_array.size == 0:
+        raise ValueError("bad_quality")
+
+    face_image = Image.fromarray(cropped_array)
+    max_side = max(face_image.size)
     if max_side > 768:
-        image.thumbnail((768, 768), Image.LANCZOS)
+        face_image.thumbnail((768, 768), Image.LANCZOS)
 
     buffer = io.BytesIO()
-    image.save(buffer, format="JPEG", quality=80, optimize=True)
+    face_image.save(buffer, format="JPEG", quality=80, optimize=True)
     optimized_bytes = buffer.getvalue()
     buffer.close()
-    return image, optimized_bytes
+    return face_image, optimized_bytes
 
 
 async def analyze_image(image_bytes: bytes, user_id: str) -> Dict[str, Any]:
