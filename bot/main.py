@@ -8,6 +8,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import CallbackQuery
 from aiogram.client.default import DefaultBotProperties
 from aiogram.client.session.aiohttp import AiohttpSession
+import socket
 
 from config import get_settings
 from keyboards import main_actions
@@ -24,7 +25,7 @@ from messages import (
 
 
 settings = get_settings()
-session = AiohttpSession(timeout=60)
+session = AiohttpSession(timeout=60, connector=aiohttp.TCPConnector(family=socket.AF_INET))
 bot = Bot(
     token=settings.token,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
