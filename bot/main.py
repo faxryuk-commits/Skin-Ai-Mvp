@@ -6,6 +6,7 @@ from aiogram import Bot, Dispatcher, F, Router, types
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import CallbackQuery
+from aiogram.client.default import DefaultBotProperties
 
 from config import get_settings
 from keyboards import main_actions
@@ -22,7 +23,7 @@ from messages import (
 
 
 settings = get_settings()
-bot = Bot(token=settings.token, parse_mode=ParseMode.HTML)
+bot = Bot(token=settings.token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
 router = Router()
 dp.include_router(router)
