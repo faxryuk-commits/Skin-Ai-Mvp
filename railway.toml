@@ -1,0 +1,16 @@
+[project]
+name = "skin-ai-mvp"
+
+[services.api]
+start = "uvicorn main:app --host 0.0.0.0 --port 8000"
+rootDir = "api"
+healthcheckPath = "/health"
+
+[services.bot]
+start = "python main.py"
+rootDir = "bot"
+
+[variables]
+# Эти переменные задаются в Railway UI:
+# BOT_TOKEN, OPENAI_API_KEY, API_BASE_URL, DATABASE_URL
+
