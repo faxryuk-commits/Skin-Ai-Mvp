@@ -25,7 +25,7 @@ from messages import (
 
 
 settings = get_settings()
-session = AiohttpSession(timeout=60, connector=aiohttp.TCPConnector(family=socket.AF_INET))
+session = AiohttpSession(timeout=60)
 bot = Bot(
     token=settings.token,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
