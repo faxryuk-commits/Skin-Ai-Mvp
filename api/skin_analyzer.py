@@ -4,7 +4,7 @@ import json
 import os
 import uuid
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 import numpy as np
 from dotenv import load_dotenv
@@ -121,12 +121,25 @@ async def _call_gpt(metrics: Dict[str, float], image_bytes: bytes) -> Dict[str, 
     return json.loads(raw)
 
 
-async def analyze_image(image_bytes: bytes, user_id: str) -> Dict[str, Any]:
+def _prepare_image(image_bytes: bytes) -> Tuple[Image.Image, bytes]:
     image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    max_side = max(image.size)
+    if max_side > 1024:
+        image.thumbnail((1024, 1024), Image.LANCZOS)
+
+    buffer = io.BytesIO()
+    image.save(buffer, format="JPEG", quality=85, optimize=True)
+    optimized_bytes = buffer.getvalue()
+    buffer.close()
+    return image, optimized_bytes
+
+
+async def analyze_image(image_bytes: bytes, user_id: str) -> Dict[str, Any]:
+    image, optimized_bytes = _prepare_image(image_bytes)
     _ensure_quality(image)
 
     metrics = _compute_metrics(image)
-    ai_result = await _call_gpt(metrics, image_bytes)
+    ai_result = await _call_gpt(metrics, optimized_bytes)
 
     ai_result["id"] = str(uuid.uuid4())
     ai_result["metrics"] = metrics
